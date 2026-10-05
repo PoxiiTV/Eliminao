@@ -1,7 +1,7 @@
 // Se ejecuta en start.bat (tsx de Vencord/node_modules)
 import assert from "node:assert/strict";
 
-import { comboFromEvent, formatClock, formatDuration, matchPrefix, parseDuration, parsePresets } from "../eliminao/utils";
+import { comboFromEvent, formatClock, formatDuration, isNewer, matchPrefix, parseDuration, parsePresets } from "../eliminao/utils";
 
 assert.equal(parseDuration("30s"), 30_000);
 assert.equal(parseDuration("1h30m"), 5_400_000);
@@ -45,5 +45,11 @@ assert.equal(comboFromEvent(key("T", { ctrlKey: true, shiftKey: true })), "Ctrl+
 assert.equal(comboFromEvent(key(" ", { ctrlKey: true })), "Ctrl+Space");
 assert.equal(comboFromEvent(key("F8")), "F8");
 assert.equal(comboFromEvent(key("Alt", { altKey: true })), null, "solo modificador");
+
+assert.equal(isNewer("1.2.0", "1.1.9"), true);
+assert.equal(isNewer("v1.10.0", "1.9.0"), true, "compara números, no texto");
+assert.equal(isNewer("1.0.0", "1.0.0"), false);
+assert.equal(isNewer("1.0.0", "1.0.1"), false);
+assert.equal(isNewer("1.1", "1.0.9"), true);
 
 console.log("utils: OK");

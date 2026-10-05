@@ -4,6 +4,19 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+/** Versión publicada. publicar.bat la usa para el tag del release; súbela antes de publicar */
+export const VERSION = "1.0.0";
+
+/** "1.2.0" > "1.1.9" → true. Ignora una "v" delante */
+export function isNewer(candidate: string, current: string) {
+    const parse = (v: string) => v.replace(/^v/, "").split(".").map(n => parseInt(n) || 0);
+    const a = parse(candidate), b = parse(current);
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+        if ((a[i] ?? 0) !== (b[i] ?? 0)) return (a[i] ?? 0) > (b[i] ?? 0);
+    }
+    return false;
+}
+
 const UNITS = { d: 86_400_000, h: 3_600_000, m: 60_000, s: 1000 } as const;
 type Unit = keyof typeof UNITS;
 

@@ -7,8 +7,10 @@
 import "./styles.css";
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
+import { showNotice } from "@api/Notices";
 import ErrorBoundary from "@components/ErrorBoundary";
-import definePlugin from "@utils/types";
+import { Logger } from "@utils/Logger";
+import definePlugin, { PluginNative } from "@utils/types";
 import { Message } from "@vencord/discord-types";
 import { ChannelStore, SelectedChannelStore, showToast } from "@webpack/common";
 
@@ -16,7 +18,7 @@ import { ClockIcon, Countdown, EliminaoButton, messageMenuGroup, openTimerMenu }
 import * as scheduler from "./scheduler";
 import { exitSelection, getSelection, toggleSelected } from "./selection";
 import { getScope, settings, updateScope } from "./settings";
-import { comboFromEvent, formatDuration, matchPrefix } from "./utils";
+import { comboFromEvent, formatDuration, matchPrefix, VERSION } from "./utils";
 
 // ---- Enlazar el mensaje que sale del chat con el que crea Discord ----
 // El pre-send no conoce el id del mensaje. Discord crea primero un mensaje "optimista" (id = nonce)
@@ -63,6 +65,28 @@ function onKeyDown(e: KeyboardEvent) {
     const scope = getScope(channelId);
     updateScope(channelId, { enabled: !scope.enabled });
     showToast(scope.enabled ? "Eliminao desactivado" : `Eliminao activado · ${formatDuration(scope.ms)}`, scope.enabled ? "message" : "success");
+}
+
+// ---- Actualizaciones desde los releases de GitHub ----
+
+const Native = VencordNative.pluginHelpers.Eliminao as PluginNative<typeof import("./native")>;
+const UPDATE_EVERY = 6 * 3_600_000;
+let updateTimer: ReturnType<typeof setTimeout> | undefined;
+let updateReady = false;
+
+async function checkForUpdates() {
+    updateTimer = setTimeout(checkForUpdates, UPDATE_EVERY);
+    if (updateReady || !settings.store.autoUpdate) return;
+    try {
+        const info = await Native.checkForUpdate(VERSION);
+        if (!info) return;
+        await Native.downloadUpdate();
+        updateReady = true;
+        showNotice(`Eliminao se ha actualizado a la v${info.version}. Reinicia Discord para usarla.`, "Reiniciar", () => Native.relaunch());
+    } catch (e) {
+        // Sin conexión o release a medio subir: se reintenta en la siguiente vuelta
+        new Logger("Eliminao").warn("No se pudo comprobar o descargar la actualización", e);
+    }
 }
 
 // ---- Plan B de la cuenta atrás ----
@@ -166,11 +190,14 @@ export default definePlugin({
 
     start() {
         document.addEventListener("keydown", onKeyDown, true);
+        // Con margen: que Discord termine de arrancar antes de ir a la red
+        updateTimer = setTimeout(checkForUpdates, 15_000);
         return scheduler.start();
     },
 
     stop() {
         document.removeEventListener("keydown", onKeyDown, true);
+        clearTimeout(updateTimer);
         scheduler.stop();
         exitSelection();
         pending = [];

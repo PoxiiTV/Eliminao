@@ -15,7 +15,7 @@ import type { CSSProperties, RefObject } from "react";
 import { cancel, deleteNow, findMyLastMessages, getTask, schedule, scheduleMany, Task, useNow, useTask, useTasks } from "./scheduler";
 import { exitSelection, selectAllLoaded, startSelection, useSelection } from "./selection";
 import { getScope, guildOf, ScopeKind, scopeKind, setScopeKind, settings, updateScope } from "./settings";
-import { comboFromEvent, formatClock, formatDuration, MAX_MS, MIN_MS, parseDuration, parsePresets } from "./utils";
+import { comboFromEvent, formatClock, formatDuration, MAX_MS, MIN_MS, parseDuration, parsePresets, VERSION } from "./utils";
 
 const cl = classNameFactory("eliminao-");
 
@@ -117,6 +117,7 @@ function Panel({ channelId, onClose }: { channelId: string; onClose(): void; }) 
                 <div className={cl("title")}>
                     <ClockIcon width={18} height={18} />
                     <span>Eliminao</span>
+                    <span className={cl("version")}>v{VERSION}</span>
                 </div>
                 <Switch checked={scope.enabled} onChange={enabled => updateScope(channelId, { enabled })} />
             </header>

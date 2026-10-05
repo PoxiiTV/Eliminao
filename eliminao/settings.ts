@@ -53,6 +53,11 @@ export const settings = definePluginSettings({
         description: "Mostrar la cuenta atrás al final de tus mensajes temporales",
         default: true
     },
+    autoUpdate: {
+        type: OptionType.BOOLEAN,
+        description: "Actualizar Eliminao automáticamente cuando salga una versión nueva",
+        default: true
+    },
     notifyOnDelete: {
         type: OptionType.BOOLEAN,
         description: "Mostrar un aviso cada vez que se elimina un mensaje",

@@ -1,127 +1,234 @@
-# ⏱️ Eliminao
+<div align="center">
 
-**Mensajes temporales para Discord (plugin de [Vencord](https://vencord.dev)).** Escribe y olvídate: tus mensajes se borran solos cuando pasa el tiempo que elijas, y ese tiempo lo cambias al momento desde el propio chat.
+<img src=".assets/banner.png" alt="Eliminao" width="100%" />
 
-[🇪🇸 Español](#-español) · [🇬🇧 English](#-english)
+<br />
+
+![Versión](https://img.shields.io/badge/versión-1.0.0-4fd1ff?style=flat-square)
+![Discord](https://img.shields.io/badge/Discord-Vencord-a06bff?style=flat-square)
+![Plataforma](https://img.shields.io/badge/Windows-10%20%7C%2011-34e0a1?style=flat-square)
+![Actualizaciones](https://img.shields.io/badge/actualizaciones-automáticas-ffb454?style=flat-square)
+![Licencia](https://img.shields.io/badge/licencia-GPL--3.0-ff6ec7?style=flat-square)
+
+**Mensajes temporales para Discord.**
+Escribes, eliges cuánto dura y el mensaje se borra solo. El tiempo se cambia al momento, sin salir del chat.
+
+</div>
 
 ---
 
-## 🇪🇸 Español
+## 🎯 Qué es
 
-### Qué hace
+Un plugin para [Vencord](https://vencord.dev) que añade un **reloj** a la barra del chat. Lo pulsas,
+eliges *30 segundos*, *5 minutos* o *un día*, y todo lo que escribas a partir de ahí se borra
+cuando se acabe el tiempo. Al final de cada mensaje temporal aparece una cuenta atrás pequeña y gris,
+como el «(editado)» de Discord, para que sepas cuánto le queda.
 
-- **Botón de reloj en la barra del chat.** Al pulsarlo se abre un panel con atajos de tiempo (10s, 30s, 1m, 5m, 15m, 1h, 8h, 1d), un campo para poner el tiempo que quieras (`45s`, `2h30m`, `5min`…) y un interruptor para activarlo. Si haces **clic derecho** en el reloj, se activa o desactiva sin abrir nada.
-- **Siempre sabes si está activo:** el reloj se colorea y muestra el tiempo (ej. `5m`).
-- **Por chat, por servidor o global:** cada chat puede tener su propio tiempo, todo un servidor puede compartir uno, o se usa el global. Se aplica el más concreto.
-- **Atajo de teclado** para activarlo o desactivarlo (`Alt+T` por defecto, se cambia en los ajustes grabando la combinación que quieras).
-- **Solo el siguiente mensaje:** se desactiva solo después de enviar uno.
-- **Prefijo rápido:** `!t 30s hola` envía *hola* y lo borra a los 30 s. Con `!t off hola` ese mensaje no se borra aunque el modo esté activo.
-- **Cuenta atrás discreta** al final de cada mensaje temporal, pequeña y gris como "(editado)": un anillo que se va vaciando y se pone en rojo en los últimos 10 s. Al pasar el ratón te dice a qué hora se borra y, si haces clic, cancelas el borrado.
-- **Clic derecho en tus mensajes** o **botón de reloj al pasar el ratón** por encima: *Hacer temporal* (también en mensajes ya enviados), *Cambiar temporizador*, *Cancelar borrado* y *Borrar ya*.
-- **Mis últimos N mensajes:** desde el panel, haz temporales de golpe tus últimos mensajes del chat (hasta 500).
-- **Selección múltiple:** activa el modo selección, haz clic en tus mensajes (o en *Todos*) y bórralos de golpe o hazlos temporales. Funciona en MD y en servidores, y antes de borrar pide confirmación.
-- **Lista de pendientes** del chat dentro del panel, con opción de cancelar o borrar al momento.
-- **Aguanta las actualizaciones de Discord:** si una actualización rompe la cuenta atrás en línea, pasa a mostrarse debajo del mensaje automáticamente.
-- **Persistente:** si cierras Discord, los borrados se guardan y, al volver a abrirlo, se borra lo que ya había caducado.
-- **Prudente con Discord:** borra los mensajes de uno en uno, respeta los límites de peticiones (429) y reintenta si falla la red.
+> 🔒 Solo borra **tus** mensajes, con las mismas peticiones que harías tú a mano y a un ritmo
+> que respeta los límites de Discord.
 
-### Instalación
+## 📥 Instalación
 
-1. Descomprime el zip.
-2. Ejecuta **`instalar.bat`**. Hace todo solo:
-   - instala Git y Node.js 22+ con `winget` si te faltan (después hay que ejecutarlo otra vez);
-   - descarga Vencord en `%LOCALAPPDATA%\Eliminao` y lo compila con Eliminao;
-   - lo instala en Discord, **comprueba que Discord lo carga de verdad** y vuelve a abrirlo.
-3. Listo: Eliminao viene activado y el reloj aparece en la barra del chat.
+1. Descarga **[`Eliminao-Instalador.exe`](../../releases/latest/download/Eliminao-Instalador.exe)** desde **[Releases](../../releases)**.
+2. Ábrelo. Se instala solo, comprueba que funciona y abre Discord.
+3. Busca el ⏱️ en la barra del chat. Ya está.
 
-Después de esto **abres Discord como siempre**, no hay que hacer nada más. Si alguna actualización de Discord hace que desaparezcan el reloj o Vencord, vuelve a ejecutar `instalar.bat`.
+No hace falta Git, Node ni nada más: solo Discord de escritorio. Si ya lo tienes instalado, el mismo
+`.exe` te deja **actualizar, reparar o desinstalar**.
 
-Tus ajustes y temas de Vencord se conservan, porque se siguen guardando en `%APPDATA%\Vencord`. La carpeta del zip puedes borrarla cuando quieras: Discord carga desde `%LOCALAPPDATA%\Eliminao`.
+> 🛡️ La primera vez Windows puede decir *«Windows protegió tu PC»*. Es lo que sale con cualquier programa
+> sin firma de pago y con pocas descargas: pulsa **Más información → Ejecutar de todas formas**.
 
-### Scripts
+## ✨ Qué trae
 
-| Script | Para qué |
+| | |
 |---|---|
-| `instalar.bat` | Instala o repara. Úsalo también si una actualización de Discord rompe Vencord: lo actualiza y lo reinstala. |
-| `start.bat` | Pasa los tests, copia el plugin a Vencord y compila. Después pulsa `Ctrl+R` en Discord. |
-| `deploy.bat` | Genera `deploy-hosting/eliminao`, lista para copiar en `src/userplugins/` de cualquier Vencord. |
+| ⏱️ **Reloj en la barra del chat** | Panel con tiempos rápidos, tiempo a medida (`45s`, `2h30m`, `5min`) e interruptor. El reloj se ilumina y muestra el tiempo activo |
+| 🏠 **Por chat, por servidor o global** | Cada chat puede tener su tiempo, un servidor entero puede compartir uno, y si no, se usa el global. Gana el más concreto |
+| 1️⃣ **Solo el siguiente mensaje** | Se apaga solo después de enviar uno |
+| ⏳ **Cuenta atrás discreta** | Al final del texto, con un anillo que se vacía y se pone rojo en los últimos 10 s |
+| 🖱️ **Clic derecho y botón al pasar el ratón** | Haz temporal cualquier mensaje tuyo, también los ya enviados. O cambia su tiempo, cancélalo o bórralo ya |
+| 🧹 **Mis últimos N mensajes** | Hazlos temporales de golpe desde el panel (hasta 500) |
+| ☑️ **Selección múltiple** | Marca varios mensajes y bórralos o hazlos temporales a la vez, con confirmación antes de borrar |
+| 📋 **Pendientes** | Lista de lo que se va a borrar en el chat, con su tiempo, para cancelarlo o adelantarlo |
+| 💾 **Persistente** | Si cierras Discord, lo que caducó mientras tanto se borra al volver a abrirlo |
+| 🔄 **Se actualiza solo** | Cuando sale una versión nueva se descarga sola y te avisa para reiniciar |
+| 🛟 **Aguanta las actualizaciones de Discord** | Si Discord cambia algo y la cuenta atrás no puede ir en línea, pasa a mostrarse debajo del mensaje |
 
-### Ajustes (Vencord → Plugins → Eliminao)
+## ⌨️ Cómo se usa
 
-- **Atajo de teclado:** pulsa el botón y la combinación que quieras. Retroceso lo desactiva.
-- **Atajos de tiempo:** lista separada por comas, por ejemplo `10s, 1m, 2h30m`.
-- **Prefijo:** `!t` por defecto. Déjalo vacío para desactivarlo.
-- **Cuenta atrás:** mostrarla u ocultarla en los mensajes.
-- **Aviso al borrar:** muestra un toast cada vez que se elimina un mensaje.
+| | |
+|---|---|
+| 🖱️ **Clic en el reloj** | Abre el panel |
+| 🖱️ **Clic derecho en el reloj** | Activa o desactiva sin abrir nada |
+| ⌨️ **`Alt` + `T`** | Lo mismo con el teclado (se cambia en los ajustes) |
+| ✍️ **`!t 30s hola`** | Envía *hola* y lo borra a los 30 s, sin tocar la configuración |
 
-Límites de tiempo: entre **3 segundos** y **30 días**.
+## 🔮 Trucos escondidos
 
-### Cosas a tener en cuenta
+| | |
+|---|---|
+| 🙅 **`!t off hola`** | Ese mensaje no se borra, aunque el modo temporal esté activo |
+| 🕐 **Pasa el ratón por la cuenta atrás** | Te dice a qué hora exacta se borra. **Un clic** y cancelas el borrado |
+| 🔵 **El puntito sobre el reloj** | Significa que está en modo *solo el siguiente mensaje* |
+| ☑️ **«Todos» en la selección** | Marca de una vez todos tus mensajes cargados en el chat. `Esc` sale del modo selección |
+| 🎛️ **Tus propios tiempos rápidos** | En los ajustes: `10s, 1m, 2h30m`… los que quieras, separados por comas |
+| 🧭 **Cambiar de pestaña en el panel** | *Este chat* copia el tiempo que tenías para empezar desde ahí; *Global* quita lo propio del chat y del servidor |
+| 🔔 **Aviso al borrar** | Actívalo en los ajustes si quieres un toast cada vez que se borra algo |
 
-- Solo borra **tus propios mensajes**, y solo mientras Discord está abierto con Vencord (lo que caduque con Discord cerrado se borra al abrirlo).
-- No funciona en el móvil ni en otros dispositivos donde no tengas el plugin.
+## ⚙️ Ajustes
+
+En **Ajustes → Vencord → Plugins → Eliminao**:
+
+- **Atajo de teclado:** pulsa el botón y la combinación que quieras. `Retroceso` lo quita.
+- **Tiempos rápidos**, **prefijo** (`!t`; vacío lo desactiva), **cuenta atrás**, **actualizaciones automáticas** y **aviso al borrar**.
+
+Los tiempos van de **3 segundos** a **30 días**.
+
+## 🔧 Desarrollo
+
+Para trabajar en el código hace falta [Git](https://git-scm.com) y [Node.js](https://nodejs.org) 22+.
+
+```bat
+instalar.bat    :: descarga Vencord, compila con Eliminao y lo instala en Discord (modo desarrollo)
+start.bat       :: tests + compila. Luego Ctrl+R en Discord
+build-exe.bat   :: genera release\Eliminao-Instalador.exe
+publicar.bat    :: publica una versión en GitHub (sube VERSION y el CHANGELOG antes)
+deploy.bat      :: deja el plugin en deploy-hosting\ para cualquier Vencord
+```
+
+### 🚀 Publicar una versión
+
+1. Sube `VERSION` en `eliminao/utils.ts` y añade la sección `## vX.Y.Z` al [`CHANGELOG.md`](CHANGELOG.md).
+2. Haz commit y ejecuta `publicar.bat`.
+
+Compila, genera el instalador y crea el release. Todos los que lo tengan instalado se actualizan solos.
+
+### 🗃️ Estructura
+
+```
+eliminao/
+  index.tsx        definición del plugin: envío, parches, menús, atajo, actualizaciones
+  components.tsx   botón, panel, barra de selección, menús y cuenta atrás
+  scheduler.ts     tareas de borrado, cola con límite de peticiones y persistencia
+  selection.ts     modo selección múltiple
+  settings.ts      ajustes y ámbitos (chat → servidor → global)
+  native.ts        actualizador: corre en el proceso principal de Discord
+  utils.ts         lógica pura con tests: tiempos, prefijo, atajos, versiones
+instalador/        Eliminao-Instalador.exe (C# sobre el .NET que trae Windows)
+tests/             tests de utils.ts (se pasan en start.bat)
+```
+
+## 🧠 Detalles que conviene saber
+
+- **Cómo sabe qué mensaje borrar.** Al enviar, el plugin aún no conoce el id del mensaje. Discord crea
+  primero un mensaje provisional con un `nonce` y después el real con ese mismo `nonce`. Por ahí se emparejan.
+- **Un solo temporizador**, apuntando siempre al borrado más próximo, en vez de uno por mensaje.
+  `setTimeout` se desborda por encima de ~24,8 días, y eso también está contemplado.
+- **Los borrados van en cola, de uno en uno.** Si Discord responde `429` (demasiadas peticiones), espera lo
+  que pide y sigue. Si falla la red, lo reintenta sin perder la tarea.
+- **La actualización es todo o nada.** Descarga los cuatro archivos, comprueba que el nuevo trae Eliminao
+  y solo entonces sustituye. Las instalaciones de desarrollo (con `.git`) no se actualizan, para no pisar tus builds.
+- **Tus ajustes y temas de Vencord no se tocan**: siguen en `%APPDATA%\Vencord`.
+
+## ⚠️ Cosas a tener en cuenta
+
+- Solo borra mientras Discord está abierto con el plugin. Lo que caduque con Discord cerrado se borra al abrirlo.
+- No funciona en el móvil ni en otros dispositivos sin el plugin.
 - Quien esté conectado puede leer el mensaje antes de que se borre, y los bots de registro pueden guardar una copia.
 - Los mods de cliente, Vencord incluido, van contra los Términos de Servicio de Discord. Úsalo bajo tu responsabilidad.
 
+## 📜 Licencia
+
+[GPL-3.0-or-later](LICENSE), la misma que Vencord.
+
+<div align="center">
+
 ---
 
-## 🇬🇧 English
+hecho con 💙 por [poxi](https://github.com/PoxiiTV)
 
-### What it does
+</div>
 
-- **Clock button in the chat bar.** Click it to open a panel with quick times (10s, 30s, 1m, 5m, 15m, 1h, 8h, 1d), a custom time field (`45s`, `2h30m`, `5min`…) and an on/off switch. **Right-click** the clock to toggle it without opening anything.
-- **Always know when it's on:** the clock lights up and shows the current time (e.g. `5m`).
-- **Per chat, per server or global:** each chat can have its own timer, a whole server can share one, or the global one is used. The most specific one wins.
-- **Keyboard shortcut** to toggle it (`Alt+T` by default; change it in settings by recording any combination).
-- **Next message only:** turns itself off after sending one message.
-- **Quick prefix:** `!t 30s hello` sends *hello* and deletes it after 30 s. `!t off hello` keeps that message even when the mode is on.
-- **Subtle countdown** at the end of every temporary message, small and grey like "(edited)": a ring that drains and turns red in the last 10 s. Hover it to see when it will be deleted, and click it to cancel.
-- **Right-click your messages** or use the **clock button on hover**: *Make temporary* (works on already-sent messages too), *Change timer*, *Cancel deletion* and *Delete now*.
-- **My last N messages:** make your latest messages in the chat temporary in one go from the panel (up to 500).
-- **Multi-select:** enter selection mode, click your messages (or *All*) and delete them in bulk or make them temporary. Works in DMs and servers, and asks for confirmation before deleting.
-- **Pending list** for the current chat inside the panel, where you can cancel or delete right away.
-- **Survives Discord updates:** if an update breaks the inline countdown, it automatically moves below the message.
-- **Persistent:** if you close Discord, scheduled deletions are saved, and anything that expired in the meantime is deleted when you reopen it.
-- **Gentle with Discord:** deletes messages one by one, respects rate limits (429) and retries on network errors.
+---
 
-### Installation
+<div align="center">
 
-1. Unzip the archive.
-2. Run **`instalar.bat`**. It does everything for you:
-   - installs Git and Node.js 22+ with `winget` if they're missing (then run it again);
-   - downloads Vencord to `%LOCALAPPDATA%\Eliminao` and builds it with Eliminao;
-   - installs it into Discord, **checks that Discord actually loads it** and reopens Discord.
-3. Done: Eliminao comes enabled and the clock shows up in the chat bar.
+# 🇬🇧 English
 
-From then on **just open Discord as usual**, nothing else to do. If a Discord update ever makes the clock or Vencord disappear, run `instalar.bat` again.
+</div>
 
-Your Vencord settings and themes are kept, since they're still stored in `%APPDATA%\Vencord`. You can delete the unzipped folder whenever you want: Discord loads from `%LOCALAPPDATA%\Eliminao`.
+## 🎯 What it is
 
-### Scripts
+**Temporary messages for Discord.** A [Vencord](https://vencord.dev) plugin that adds a **clock** to the chat
+bar. Pick *30 seconds*, *5 minutes* or *a day*, and everything you send from then on deletes itself when time
+runs out. A small grey countdown sits at the end of each temporary message, like Discord's «(edited)».
 
-| Script | Purpose |
+> 🔒 It only deletes **your** messages, with the same requests you'd make by hand and at a pace that
+> respects Discord's rate limits.
+
+## 📥 Installation
+
+1. Download **[`Eliminao-Instalador.exe`](../../releases/latest/download/Eliminao-Instalador.exe)** from **[Releases](../../releases)**.
+2. Open it. It installs itself, checks that it works and opens Discord.
+3. Look for the ⏱️ in the chat bar. Done.
+
+No Git, no Node: just the Discord desktop app. If it's already installed, the same `.exe` lets you
+**update, repair or uninstall**.
+
+> 🛡️ Windows may show *«Windows protected your PC»* the first time. That happens with any unsigned app with
+> few downloads: click **More info → Run anyway**.
+
+## ✨ Features
+
+Clock button with quick panel · per chat, per server or global timer · next-message-only mode · subtle inline
+countdown · right-click and hover button on your messages · make your last N messages temporary · multi-select
+to delete or time several at once · pending list · survives restarts · auto-updates · falls back gracefully if
+a Discord update breaks the inline countdown.
+
+## ⌨️ How to use it
+
+| | |
 |---|---|
-| `instalar.bat` | Installs or repairs. Also use it if a Discord update breaks Vencord: it updates and reinstalls it. |
-| `start.bat` | Runs the tests, copies the plugin into Vencord and builds it. Then press `Ctrl+R` in Discord. |
-| `deploy.bat` | Creates `deploy-hosting/eliminao`, ready to drop into `src/userplugins/` of any Vencord checkout. |
+| 🖱️ **Click the clock** | Opens the panel |
+| 🖱️ **Right-click the clock** | Toggles it without opening anything |
+| ⌨️ **`Alt` + `T`** | Same, from the keyboard (configurable in settings) |
+| ✍️ **`!t 30s hello`** | Sends *hello* and deletes it after 30 s, without touching your settings |
 
-### Settings (Vencord → Plugins → Eliminao)
+## 🔮 Hidden gems
 
-- **Keyboard shortcut:** click the button and press any combination. Backspace disables it.
-- **Presets:** comma-separated list, e.g. `10s, 1m, 2h30m`.
-- **Prefix:** `!t` by default. Leave it empty to disable it.
-- **Countdown:** show or hide it on messages.
-- **Notify on delete:** shows a toast every time a message is deleted.
+| | |
+|---|---|
+| 🙅 **`!t off hello`** | That message stays, even with temporary mode on |
+| 🕐 **Hover the countdown** | Shows the exact deletion time. **One click** cancels it |
+| 🔵 **The dot on the clock** | Means *next message only* mode is on |
+| ☑️ **«Todos» in selection mode** | Selects all your loaded messages in the chat. `Esc` leaves selection mode |
+| 🎛️ **Your own presets** | In settings: `10s, 1m, 2h30m`… any list you like |
 
-Time limits: from **3 seconds** to **30 days**.
+## 🔧 Development
 
-### Good to know
+Requires [Git](https://git-scm.com) and [Node.js](https://nodejs.org) 22+. Scripts: `instalar.bat` (dev install),
+`start.bat` (tests + build, then `Ctrl+R` in Discord), `build-exe.bat` (installer), `publicar.bat` (GitHub release:
+bump `VERSION` in `eliminao/utils.ts` and add a `CHANGELOG.md` section first) and `deploy.bat`.
 
-- It only deletes **your own messages**, and only while Discord is open with Vencord (anything that expires while Discord is closed is deleted when you open it).
-- It doesn't work on mobile or on other devices without the plugin.
-- People online can read the message before it's deleted, and logging bots may keep a copy.
-- Client mods, Vencord included, are against Discord's Terms of Service. Use it at your own risk.
+## 🧠 Things worth knowing
+
+- **Matching sent messages:** the plugin doesn't know a message's id when you send it, so it matches the optimistic
+  message and the real one through their shared `nonce`.
+- **One timer** always pointing at the next deletion, and a **one-by-one queue** that honours `429` responses and
+  retries on network errors.
+- **All-or-nothing updates:** all files are downloaded and checked before anything is replaced. Dev installs (with
+  `.git`) are never auto-updated.
+- **Your Vencord settings and themes are untouched**: they stay in `%APPDATA%\Vencord`.
+
+## 📜 License
+
+[GPL-3.0-or-later](LICENSE), same as Vencord.
+
+<div align="center">
 
 ---
 
-Licencia / License: [GPL-3.0-or-later](LICENSE)
+made with 💙 by [poxi](https://github.com/PoxiiTV)
+
+</div>
