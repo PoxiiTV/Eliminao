@@ -36,7 +36,7 @@ export const settings = definePluginSettings({
     },
     showCountdown: {
         type: OptionType.BOOLEAN,
-        description: "Mostrar la cuenta atrás bajo tus mensajes temporales",
+        description: "Mostrar la cuenta atrás al final de tus mensajes temporales",
         default: true
     },
     notifyOnDelete: {

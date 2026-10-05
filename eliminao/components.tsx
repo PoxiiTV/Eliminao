@@ -9,7 +9,7 @@ import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
 import { IconComponent } from "@utils/types";
 import { Message } from "@vencord/discord-types";
-import { MessageStore, Popout, useMemo, useRef, useState } from "@webpack/common";
+import { MessageStore, Popout, Tooltip, useMemo, useRef, useState } from "@webpack/common";
 import type { CSSProperties } from "react";
 
 import { formatClock, formatDuration, MAX_MS, MIN_MS, parseDuration, parsePresets } from "./duration";
@@ -202,29 +202,44 @@ function preview(channelId: string, id: string) {
     return msg.attachments?.length ? `📎 ${msg.attachments.length} adjunto(s)` : "Mensaje";
 }
 
-// ---- Cuenta atrás bajo el mensaje ----
+// ---- Cuenta atrás al final del mensaje, en línea como "(editado)" ----
 
 export function Countdown({ message }: { message: Message; }) {
     // Se renderiza en todos los mensajes: solo una suscripción barata al store de tareas
     const task = useTask(message.id);
     if (!task || !settings.store.showCountdown) return null;
-    return <CountdownPill id={task.id} createdAt={task.createdAt} expiresAt={task.expiresAt} />;
+    return <CountdownLabel id={task.id} createdAt={task.createdAt} expiresAt={task.expiresAt} />;
 }
 
 // Componente aparte: solo los mensajes temporales se suscriben al ticker
-function CountdownPill({ id, createdAt, expiresAt }: { id: string; createdAt: number; expiresAt: number; }) {
+function CountdownLabel({ id, createdAt, expiresAt }: { id: string; createdAt: number; expiresAt: number; }) {
     const now = useNow();
     const left = expiresAt - now;
     const fraction = Math.min(1, Math.max(0, left / (expiresAt - createdAt || 1)));
+    const at = new Date(expiresAt).toLocaleString([], expiresAt - now > 86_400_000
+        ? { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }
+        : { hour: "2-digit", minute: "2-digit" });
 
     return (
-        <div className={cl("countdown", { urgent: left <= 10_000 })}>
-            <span className={cl("ring")} style={{ "--eliminao-p": fraction } as CSSProperties} aria-hidden="true" />
-            <span>{left > 0 ? `Se elimina en ${formatClock(left)}` : "Eliminando…"}</span>
-            <button className={cl("countdown-cancel")} onClick={() => cancel(id)} aria-label="Cancelar borrado" title="Cancelar borrado">
-                <CloseIcon />
-            </button>
-        </div>
+        <Tooltip text={`Se elimina a las ${at} · Clic para cancelar`}>
+            {props => (
+                <span
+                    {...props}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Se elimina en ${formatClock(left)}. Cancelar borrado`}
+                    className={cl("inline", { urgent: left <= 10_000 })}
+                    onClick={e => {
+                        e.stopPropagation();
+                        cancel(id);
+                    }}
+                    onKeyDown={e => (e.key === "Enter" || e.key === " ") && cancel(id)}
+                >
+                    <span className={cl("ring")} style={{ "--eliminao-p": fraction } as CSSProperties} aria-hidden="true" />
+                    {left > 0 ? formatClock(left) : "…"}
+                </span>
+            )}
+        </Tooltip>
     );
 }
 

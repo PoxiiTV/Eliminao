@@ -2,7 +2,7 @@
 
 .eliminao-button,
 .eliminao-panel,
-.eliminao-countdown {
+.eliminao-inline {
     --eliminao-accent: var(--brand-500, #5865f2);
     --eliminao-danger: var(--status-danger, #f23f43);
     --eliminao-ease: cubic-bezier(0.23, 1, 0.32, 1);
@@ -364,36 +364,49 @@
     font-size: 11px;
 }
 
-/* ---- Cuenta atrás bajo el mensaje ---- */
+/* ---- Cuenta atrás al final del mensaje (discreta, como "(editado)") ---- */
 
-.eliminao-countdown {
+.eliminao-inline {
     display: inline-flex;
-    gap: 6px;
+    gap: 3px;
     align-items: center;
-    margin-top: 4px;
-    padding: 2px 4px 2px 7px;
-    border-radius: 999px;
-    background: var(--eliminao-fill);
+    margin-left: 0.3rem;
     color: var(--text-muted, #949ba4);
-    font-size: 12px;
+    font-size: 0.6875rem;
     font-variant-numeric: tabular-nums;
-    line-height: 18px;
-    transition: color 200ms ease;
+    line-height: 1;
+    vertical-align: baseline;
+    cursor: pointer;
+    user-select: none;
+    transition: color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .eliminao-inline:hover {
+        color: var(--text-default, #dbdee1);
+    }
+}
+
+.eliminao-inline:focus-visible {
+    border-radius: 3px;
+    outline: 2px solid var(--eliminao-accent);
+    outline-offset: 1px;
 }
 
 .eliminao-ring {
-    width: 12px;
-    height: 12px;
+    width: 9px;
+    height: 9px;
+    flex-shrink: 0;
     border-radius: 50%;
-    background: conic-gradient(currentcolor calc(var(--eliminao-p) * 1turn), color-mix(in srgb, currentcolor 22%, transparent) 0);
-    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+    background: conic-gradient(currentcolor calc(var(--eliminao-p) * 1turn), color-mix(in srgb, currentcolor 25%, transparent) 0);
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2.5px), #000 calc(100% - 2px));
 }
 
-.eliminao-countdown.eliminao-urgent {
+.eliminao-inline.eliminao-urgent {
     color: var(--eliminao-danger);
 }
 
-.eliminao-countdown.eliminao-urgent .eliminao-ring {
+.eliminao-inline.eliminao-urgent .eliminao-ring {
     animation: eliminao-pulse 1s ease-in-out infinite;
 }
 
@@ -403,43 +416,13 @@
     }
 }
 
-.eliminao-countdown-cancel {
-    display: grid;
-    place-items: center;
-    width: 18px;
-    height: 18px;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: none;
-    color: inherit;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 150ms ease, background-color 150ms ease;
-}
-
-.eliminao-countdown:hover .eliminao-countdown-cancel,
-.eliminao-countdown-cancel:focus-visible {
-    opacity: 1;
-}
-
-.eliminao-countdown-cancel:hover {
-    background: var(--eliminao-fill);
-}
-
-@media (hover: none) {
-    .eliminao-countdown-cancel {
-        opacity: 1;
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
     .eliminao-panel {
         animation-name: eliminao-fade;
     }
 
     .eliminao-custom.eliminao-invalid,
-    .eliminao-countdown.eliminao-urgent .eliminao-ring {
+    .eliminao-inline.eliminao-urgent .eliminao-ring {
         animation: none;
     }
 

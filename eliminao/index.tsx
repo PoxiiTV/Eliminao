@@ -7,6 +7,7 @@
 import "./styles.css";
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
+import ErrorBoundary from "@components/ErrorBoundary";
 import definePlugin from "@utils/types";
 import { Message } from "@vencord/discord-types";
 import { Menu, UserStore } from "@webpack/common";
@@ -117,7 +118,19 @@ export default definePlugin({
         message: messageContextMenu
     },
 
-    renderMessageAccessory: ({ message }) => <Countdown message={message} />,
+    patches: [
+        {
+            // Renderizador del contenido del mensaje: la cuenta atrás va al final del texto,
+            // en línea como "(editado)", así sale también en los mensajes agrupados (sin cabecera)
+            find: ".SEND_FAILED,",
+            replacement: {
+                match: /location:\i\.\i\.WITH_CONTENT\}\)(?=\])/,
+                replace: "$&,$self.renderCountdown(arguments[0])"
+            }
+        }
+    ],
+
+    renderCountdown: ErrorBoundary.wrap(({ message }: { message: Message; }) => <Countdown message={message} />, { noop: true }),
 
     start: scheduler.start,
     stop() {

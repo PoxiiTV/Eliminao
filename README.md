@@ -15,7 +15,7 @@
 - **Por chat o global:** cada chat puede tener su propio tiempo o usar el global.
 - **Solo el siguiente mensaje:** se desactiva solo después de enviar uno.
 - **Prefijo rápido:** `!t 30s hola` envía *hola* y lo borra a los 30 s. Con `!t off hola` ese mensaje no se borra aunque el modo esté activo.
-- **Cuenta atrás en cada mensaje temporal**, con un anillo que se va vaciando y se pone en rojo en los últimos 10 s. Pasando el ratón por encima puedes cancelar el borrado.
+- **Cuenta atrás discreta** al final de cada mensaje temporal, pequeña y gris como "(editado)": un anillo que se va vaciando y se pone en rojo en los últimos 10 s. Al pasar el ratón te dice a qué hora se borra y, si haces clic, cancelas el borrado.
 - **Clic derecho en tus mensajes:** *Hacer temporal* (también en mensajes ya enviados), *Cambiar temporizador*, *Cancelar borrado* y *Borrar ya*.
 - **Lista de pendientes** del chat dentro del panel, con opción de cancelar o borrar al momento.
 - **Persistente:** si cierras Discord, los borrados se guardan y, al volver a abrirlo, se borra lo que ya había caducado.
@@ -46,7 +46,7 @@ Tus ajustes y temas de Vencord se conservan, porque se siguen guardando en `%APP
 
 - **Atajos:** lista separada por comas, por ejemplo `10s, 1m, 2h30m`.
 - **Prefijo:** `!t` por defecto. Déjalo vacío para desactivarlo.
-- **Cuenta atrás:** mostrarla u ocultarla debajo de los mensajes.
+- **Cuenta atrás:** mostrarla u ocultarla en los mensajes.
 - **Aviso al borrar:** muestra un toast cada vez que se elimina un mensaje.
 
 Límites de tiempo: entre **3 segundos** y **30 días**.
@@ -69,7 +69,7 @@ Límites de tiempo: entre **3 segundos** y **30 días**.
 - **Per chat or global:** each chat can have its own timer or use the global one.
 - **Next message only:** turns itself off after sending one message.
 - **Quick prefix:** `!t 30s hello` sends *hello* and deletes it after 30 s. `!t off hello` keeps that message even when the mode is on.
-- **Countdown on every temporary message**, with a ring that drains and turns red in the last 10 s. Hover it to cancel the deletion.
+- **Subtle countdown** at the end of every temporary message, small and grey like "(edited)": a ring that drains and turns red in the last 10 s. Hover it to see when it will be deleted, and click it to cancel.
 - **Right-click your messages:** *Make temporary* (works on already-sent messages too), *Change timer*, *Cancel deletion* and *Delete now*.
 - **Pending list** for the current chat inside the panel, where you can cancel or delete right away.
 - **Persistent:** if you close Discord, scheduled deletions are saved, and anything that expired in the meantime is deleted when you reopen it.
@@ -100,7 +100,7 @@ Your Vencord settings and themes are kept, since they're still stored in `%APPDA
 
 - **Presets:** comma-separated list, e.g. `10s, 1m, 2h30m`.
 - **Prefix:** `!t` by default. Leave it empty to disable it.
-- **Countdown:** show or hide it under messages.
+- **Countdown:** show or hide it on messages.
 - **Notify on delete:** shows a toast every time a message is deleted.
 
 Time limits: from **3 seconds** to **30 days**.
