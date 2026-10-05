@@ -25,7 +25,8 @@ console.log(`Publicando Eliminao ${tag}...\n`);
 if (out("git status --porcelain")) fail("Hay cambios sin commitear. Haz commit antes de publicar.");
 if (out(`git ls-remote --tags origin ${tag}`)) fail(`La ${tag} ya está publicada. Sube VERSION en eliminao/utils.ts.`);
 
-const changelog = readFileSync(join(root, "CHANGELOG.md"), "utf8");
+// Normalizado a LF: en Windows los editores guardan con CRLF y el "." de la expresión no casa con \r
+const changelog = readFileSync(join(root, "CHANGELOG.md"), "utf8").replace(/\r\n/g, "\n");
 const notes = changelog.match(new RegExp(`^## ${tag.replace(/\./g, "\\.")}\\b.*?\\n([\\s\\S]*?)(?=^## v|(?![\\s\\S]))`, "m"))?.[1].trim();
 if (!notes) fail(`Añade una sección "## ${tag}" al CHANGELOG.md con las novedades.`);
 
