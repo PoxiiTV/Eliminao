@@ -80,7 +80,7 @@ async function checkForUpdates() {
     try {
         const info = await Native.checkForUpdate(VERSION);
         if (!info) return;
-        await Native.downloadUpdate();
+        await Native.downloadUpdate(info.version);
         updateReady = true;
         showNotice(`Eliminao se ha actualizado a la v${info.version}. Reinicia Discord para usarla.`, "Reiniciar", () => Native.relaunch());
     } catch (e) {

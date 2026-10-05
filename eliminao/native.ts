@@ -30,7 +30,7 @@ export async function checkForUpdate(_: IpcMainInvokeEvent, current: string): Pr
 }
 
 /** Descarga todo antes de tocar nada y luego sustituye: o se actualiza entero o no cambia nada */
-export async function downloadUpdate(_: IpcMainInvokeEvent) {
+export async function downloadUpdate(_: IpcMainInvokeEvent, version: string) {
     const files = await Promise.all(FILES.map(async name => {
         const res = await fetch(RELEASES + name, { cache: "no-store" });
         if (!res.ok) throw new Error(`${name}: HTTP ${res.status}`);
@@ -47,6 +47,9 @@ export async function downloadUpdate(_: IpcMainInvokeEvent) {
     } finally {
         for (const name of FILES) rmSync(join(__dirname, name + ".new"), { force: true });
     }
+
+    // El instalador lee aquí la versión instalada (Actualizar / reparar)
+    writeFileSync(join(__dirname, "..", "version.json"), JSON.stringify({ version }, null, 4));
 }
 
 export function relaunch(_: IpcMainInvokeEvent) {
