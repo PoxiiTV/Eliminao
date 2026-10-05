@@ -415,6 +415,13 @@ class InstallerForm : Form
 
         progress.SetBounds(70, 228, 300, 6);
 
+        // Roles explícitos: sin ellos, Windows (y los lectores de pantalla) ven todo como un panel genérico
+        badge.AccessibleRole = AccessibleRole.Graphic;
+        title.AccessibleRole = AccessibleRole.StaticText;
+        status.AccessibleRole = AccessibleRole.StaticText;
+        progress.AccessibleRole = AccessibleRole.ProgressBar;
+        progress.AccessibleName = "Progreso";
+
         primary.Click += (s, e) => { if (primaryAction != null) primaryAction(); };
         secondary.Click += (s, e) => { if (secondaryAction != null) secondaryAction(); };
 
@@ -430,9 +437,17 @@ class InstallerForm : Form
         if (DwmSetWindowAttribute(Handle, 20, ref on, 4) != 0) DwmSetWindowAttribute(Handle, 19, ref on, 4);
     }
 
+    /// Botón plano sin el recuadro de foco punteado de Windows (no pega con el diseño)
+    class FlatButton : Button
+    {
+        protected override bool ShowFocusCues { get { return false; } }
+        // Tampoco el borde de "botón por defecto" que Windows añade al estilo plano
+        public override void NotifyDefault(bool value) { base.NotifyDefault(false); }
+    }
+
     static Button MakeButton(bool isPrimary)
     {
-        var b = new Button
+        var b = new FlatButton
         {
             FlatStyle = FlatStyle.Flat,
             BackColor = isPrimary ? Palette.Accent : Palette.Surface,
@@ -440,6 +455,7 @@ class InstallerForm : Form
             Font = new Font("Segoe UI Semibold", 10F),
             Cursor = Cursors.Hand,
             Visible = false,
+            AccessibleRole = AccessibleRole.PushButton,
         };
         b.FlatAppearance.BorderSize = 0;
         b.FlatAppearance.MouseOverBackColor = isPrimary ? Palette.AccentHover : Color.FromArgb(53, 55, 60);
@@ -508,6 +524,7 @@ class InstallerForm : Form
     void SetState(Badge kind, string heading, string detail, string primaryText, Action onPrimary, string secondaryText, Action onSecondary)
     {
         badge.Kind = kind;
+        badge.AccessibleName = heading;
         title.Text = heading;
         status.Text = detail;
         progress.Visible = kind == Badge.Spinner;
