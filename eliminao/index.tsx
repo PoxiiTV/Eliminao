@@ -73,6 +73,8 @@ export default definePlugin({
     description: "Mensajes temporales: se borran solos pasado el tiempo que elijas. Se ajusta al momento desde el reloj de la barra del chat.",
     authors: [{ name: "Poxi", id: 0n }],
     tags: ["Chat", "Privacy", "Utility"],
+    // Quien lo instala lo hace para usarlo: que no haya que buscarlo en la lista
+    enabledByDefault: true,
     settings,
 
     chatBarButton: {

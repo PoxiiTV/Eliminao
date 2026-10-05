@@ -361,6 +361,7 @@
     border-radius: 4px;
     background: var(--eliminao-fill);
     font-family: var(--font-code, monospace);
+    font-size: 11px;
 }
 
 /* ---- Cuenta atrás bajo el mensaje ---- */

@@ -23,19 +23,22 @@
 
 ### Instalación
 
-Necesitas [Git](https://git-scm.com) y [Node.js](https://nodejs.org) (18 o superior).
+1. Descomprime el zip.
+2. Ejecuta **`instalar.bat`**. Hace todo solo:
+   - instala Git y Node.js 22+ con `winget` si te faltan (después hay que ejecutarlo otra vez);
+   - descarga Vencord en `%LOCALAPPDATA%\Eliminao` y lo compila con Eliminao;
+   - lo instala en Discord, **comprueba que Discord lo carga de verdad** y vuelve a abrirlo.
+3. Listo: Eliminao viene activado y el reloj aparece en la barra del chat.
 
-1. Ejecuta **`instalar.bat`**. Descarga Vencord, compila el plugin y abre el instalador de Vencord: elige tu Discord y pulsa instalar o reparar.
-2. Cierra Discord del todo (también desde la bandeja del sistema) y vuelve a abrirlo.
-3. Ve a **Ajustes → Vencord → Plugins** y activa **Eliminao**.
+Después de esto **abres Discord como siempre**, no hay que hacer nada más. Si alguna actualización de Discord hace que desaparezcan el reloj o Vencord, vuelve a ejecutar `instalar.bat`.
 
-Tus ajustes y temas de Vencord se conservan, porque se guardan en la misma carpeta.
+Tus ajustes y temas de Vencord se conservan, porque se siguen guardando en `%APPDATA%\Vencord`. La carpeta del zip puedes borrarla cuando quieras: Discord carga desde `%LOCALAPPDATA%\Eliminao`.
 
 ### Scripts
 
 | Script | Para qué |
 |---|---|
-| `instalar.bat` | Primera instalación. Vuelve a ejecutarlo si una actualización de Discord rompe Vencord: actualiza Vencord y lo reinstala. |
+| `instalar.bat` | Instala o repara. Úsalo también si una actualización de Discord rompe Vencord: lo actualiza y lo reinstala. |
 | `start.bat` | Pasa los tests, copia el plugin a Vencord y compila. Después pulsa `Ctrl+R` en Discord. |
 | `deploy.bat` | Genera `deploy-hosting/eliminao`, lista para copiar en `src/userplugins/` de cualquier Vencord. |
 
@@ -74,19 +77,22 @@ Límites de tiempo: entre **3 segundos** y **30 días**.
 
 ### Installation
 
-You need [Git](https://git-scm.com) and [Node.js](https://nodejs.org) 18+.
+1. Unzip the archive.
+2. Run **`instalar.bat`**. It does everything for you:
+   - installs Git and Node.js 22+ with `winget` if they're missing (then run it again);
+   - downloads Vencord to `%LOCALAPPDATA%\Eliminao` and builds it with Eliminao;
+   - installs it into Discord, **checks that Discord actually loads it** and reopens Discord.
+3. Done: Eliminao comes enabled and the clock shows up in the chat bar.
 
-1. Run **`instalar.bat`**. It downloads Vencord, builds the plugin and opens the Vencord installer: pick your Discord and install or repair.
-2. Fully quit Discord (including from the system tray) and open it again.
-3. Go to **Settings → Vencord → Plugins** and enable **Eliminao**.
+From then on **just open Discord as usual**, nothing else to do. If a Discord update ever makes the clock or Vencord disappear, run `instalar.bat` again.
 
-Your Vencord settings and themes are kept, since they live in the same folder.
+Your Vencord settings and themes are kept, since they're still stored in `%APPDATA%\Vencord`. You can delete the unzipped folder whenever you want: Discord loads from `%LOCALAPPDATA%\Eliminao`.
 
 ### Scripts
 
 | Script | Purpose |
 |---|---|
-| `instalar.bat` | First install. Run it again if a Discord update breaks Vencord: it updates Vencord and reinstalls it. |
+| `instalar.bat` | Installs or repairs. Also use it if a Discord update breaks Vencord: it updates and reinstalls it. |
 | `start.bat` | Runs the tests, copies the plugin into Vencord and builds it. Then press `Ctrl+R` in Discord. |
 | `deploy.bat` | Creates `deploy-hosting/eliminao`, ready to drop into `src/userplugins/` of any Vencord checkout. |
 
