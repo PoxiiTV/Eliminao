@@ -1,0 +1,454 @@
+/* Eliminao — mensajes temporales para Vencord */
+
+.eliminao-button,
+.eliminao-panel,
+.eliminao-countdown {
+    --eliminao-accent: var(--brand-500, #5865f2);
+    --eliminao-danger: var(--status-danger, #f23f43);
+    --eliminao-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --eliminao-line: color-mix(in srgb, var(--text-default, #dbdee1) 10%, transparent);
+    --eliminao-fill: color-mix(in srgb, var(--text-default, #dbdee1) 6%, transparent);
+}
+
+/* ---- Botón de la barra ---- */
+
+.eliminao-button {
+    position: relative;
+    display: inline-flex;
+    transition: color 150ms ease;
+}
+
+.eliminao-button.eliminao-active,
+.eliminao-button.eliminao-open {
+    color: var(--eliminao-accent);
+}
+
+.eliminao-badge {
+    position: absolute;
+    right: -7px;
+    bottom: -6px;
+    display: inline-flex;
+    gap: 2px;
+    align-items: center;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--eliminao-accent);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 13px;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 35%);
+}
+
+.eliminao-once-dot {
+    position: absolute;
+    top: -2px;
+    right: -3px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--eliminao-accent);
+    box-shadow: 0 0 0 2px var(--background-base-lower, #1e1f22);
+}
+
+/* ---- Panel (glass) ---- */
+
+.eliminao-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 300px;
+    padding: 14px;
+    border: 1px solid var(--eliminao-line);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--background-base-lower, #1e1f22) 80%, transparent);
+    backdrop-filter: blur(18px) saturate(1.5);
+    box-shadow: 0 16px 40px rgb(0 0 0 / 40%), inset 0 1px 0 rgb(255 255 255 / 5%);
+    color: var(--text-default, #dbdee1);
+    font-size: 14px;
+    transform-origin: bottom right;
+    animation: eliminao-in 180ms var(--eliminao-ease);
+}
+
+@keyframes eliminao-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px) scale(0.97);
+    }
+}
+
+.eliminao-panel :where(button) {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 140ms var(--eliminao-ease), background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.eliminao-panel :where(button):active:not(:disabled) {
+    transform: scale(0.96);
+}
+
+.eliminao-panel :where(button):focus-visible,
+.eliminao-panel :where(input):focus-visible {
+    outline: 2px solid var(--eliminao-accent);
+    outline-offset: 1px;
+}
+
+.eliminao-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.eliminao-title {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--text-strong, #fff);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.eliminao-title svg {
+    color: var(--eliminao-accent);
+}
+
+/* Selector Este chat / Global */
+.eliminao-segmented {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 3px;
+    border-radius: 10px;
+    background: var(--eliminao-fill);
+}
+
+.eliminao-segmented-thumb {
+    position: absolute;
+    inset: 3px auto 3px 3px;
+    width: calc(50% - 3px);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--eliminao-accent) 85%, transparent);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--eliminao-accent) 35%, transparent);
+    transform: translateX(100%);
+    transition: transform 220ms var(--eliminao-ease);
+}
+
+.eliminao-segmented[data-own="true"] .eliminao-segmented-thumb {
+    transform: translateX(0);
+}
+
+.eliminao-segmented button {
+    position: relative;
+    padding: 6px 0;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--text-muted, #949ba4);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.eliminao-segmented button[aria-selected="true"] {
+    color: #fff;
+}
+
+/* Tiempos rápidos */
+.eliminao-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* 4 por fila; si la última queda incompleta, se estira en vez de dejar huecos */
+.eliminao-chip {
+    flex: 1 0 calc(25% - 6px);
+    padding: 7px 0;
+    border: 1px solid var(--eliminao-line);
+    border-radius: 9px;
+    background: var(--eliminao-fill);
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.eliminao-chip.eliminao-selected {
+    border-color: var(--eliminao-accent);
+    background: color-mix(in srgb, var(--eliminao-accent) 22%, transparent);
+    color: var(--text-strong, #fff);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .eliminao-chip:hover:not(.eliminao-selected) {
+        background: color-mix(in srgb, var(--text-default, #dbdee1) 11%, transparent);
+    }
+}
+
+/* Tiempo personalizado */
+.eliminao-custom {
+    display: flex;
+    gap: 6px;
+}
+
+.eliminao-custom input {
+    flex: 1;
+    min-width: 0;
+    padding: 7px 10px;
+    border: 1px solid var(--eliminao-line);
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--background-base-lowest, #111214) 60%, transparent);
+    color: var(--text-default, #dbdee1);
+    font: inherit;
+    font-size: 13px;
+    transition: border-color 150ms ease;
+}
+
+.eliminao-custom input::placeholder {
+    color: var(--text-muted, #949ba4);
+}
+
+.eliminao-custom button {
+    padding: 0 12px;
+    border: 0;
+    border-radius: 9px;
+    background: var(--eliminao-accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.eliminao-custom button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.eliminao-custom.eliminao-invalid input {
+    border-color: var(--eliminao-danger);
+}
+
+.eliminao-custom.eliminao-invalid {
+    animation: eliminao-shake 320ms var(--eliminao-ease);
+}
+
+@keyframes eliminao-shake {
+    20%,
+    60% {
+        transform: translateX(-4px);
+    }
+
+    40%,
+    80% {
+        transform: translateX(4px);
+    }
+}
+
+.eliminao-hint,
+.eliminao-footer {
+    margin: -4px 0 0;
+    color: var(--text-muted, #949ba4);
+    font-size: 12px;
+}
+
+.eliminao-custom.eliminao-invalid + .eliminao-hint {
+    color: var(--eliminao-danger);
+}
+
+.eliminao-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--eliminao-line);
+    cursor: pointer;
+}
+
+.eliminao-row small {
+    display: block;
+    color: var(--text-muted, #949ba4);
+    font-size: 12px;
+}
+
+/* Pendientes */
+.eliminao-pending {
+    padding-top: 10px;
+    border-top: 1px solid var(--eliminao-line);
+}
+
+.eliminao-pending-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    color: var(--text-muted, #949ba4);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.eliminao-pending-header button {
+    padding: 2px 6px;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--eliminao-danger);
+    font-size: 12px;
+}
+
+.eliminao-pending ul {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 168px;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+    scrollbar-width: thin;
+}
+
+.eliminao-pending li {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 5px 4px 5px 10px;
+    border-radius: 8px;
+    background: var(--eliminao-fill);
+    font-size: 13px;
+}
+
+.eliminao-pending-text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.eliminao-pending-time {
+    color: var(--text-muted, #949ba4);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+}
+
+.eliminao-icon-btn {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--text-muted, #949ba4);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .eliminao-icon-btn:hover {
+        background: var(--eliminao-fill);
+        color: var(--text-strong, #fff);
+    }
+
+    .eliminao-icon-btn.eliminao-danger:hover {
+        color: var(--eliminao-danger);
+    }
+}
+
+.eliminao-footer code {
+    padding: 1px 4px;
+    border-radius: 4px;
+    background: var(--eliminao-fill);
+    font-family: var(--font-code, monospace);
+}
+
+/* ---- Cuenta atrás bajo el mensaje ---- */
+
+.eliminao-countdown {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    margin-top: 4px;
+    padding: 2px 4px 2px 7px;
+    border-radius: 999px;
+    background: var(--eliminao-fill);
+    color: var(--text-muted, #949ba4);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    line-height: 18px;
+    transition: color 200ms ease;
+}
+
+.eliminao-ring {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: conic-gradient(currentcolor calc(var(--eliminao-p) * 1turn), color-mix(in srgb, currentcolor 22%, transparent) 0);
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+}
+
+.eliminao-countdown.eliminao-urgent {
+    color: var(--eliminao-danger);
+}
+
+.eliminao-countdown.eliminao-urgent .eliminao-ring {
+    animation: eliminao-pulse 1s ease-in-out infinite;
+}
+
+@keyframes eliminao-pulse {
+    50% {
+        opacity: 0.4;
+    }
+}
+
+.eliminao-countdown-cancel {
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 150ms ease, background-color 150ms ease;
+}
+
+.eliminao-countdown:hover .eliminao-countdown-cancel,
+.eliminao-countdown-cancel:focus-visible {
+    opacity: 1;
+}
+
+.eliminao-countdown-cancel:hover {
+    background: var(--eliminao-fill);
+}
+
+@media (hover: none) {
+    .eliminao-countdown-cancel {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .eliminao-panel {
+        animation-name: eliminao-fade;
+    }
+
+    .eliminao-custom.eliminao-invalid,
+    .eliminao-countdown.eliminao-urgent .eliminao-ring {
+        animation: none;
+    }
+
+    .eliminao-segmented-thumb {
+        transition: none;
+    }
+}
+
+@keyframes eliminao-fade {
+    from {
+        opacity: 0;
+    }
+}

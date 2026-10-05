@@ -1,0 +1,7 @@
+# Código fuente de Vencord (lo descarga instalar.bat)
+Vencord/
+# Salida de deploy.bat
+deploy-hosting/
+node_modules/
+*.zip
+*.log
