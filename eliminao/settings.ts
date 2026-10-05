@@ -6,6 +6,9 @@
 
 import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
+import { ChannelStore } from "@webpack/common";
+
+import { ShortcutSetting } from "./components";
 
 export interface Scope {
     enabled: boolean;
@@ -14,15 +17,26 @@ export interface Scope {
     once: boolean;
 }
 
+/** De más concreto a más general: se aplica el primero que tenga configuración */
+export type ScopeKind = "channel" | "guild" | "global";
+
 export const settings = definePluginSettings({
     global: {
         type: OptionType.CUSTOM,
         default: { enabled: false, ms: 60_000, once: false } as Scope
     },
-    /** Configuración propia de cada canal; si no hay, se usa la global */
     channels: {
         type: OptionType.CUSTOM,
         default: {} as Record<string, Scope>
+    },
+    guilds: {
+        type: OptionType.CUSTOM,
+        default: {} as Record<string, Scope>
+    },
+    shortcut: {
+        type: OptionType.COMPONENT,
+        default: "Alt+T",
+        component: ShortcutSetting
     },
     presets: {
         type: OptionType.STRING,
@@ -46,24 +60,47 @@ export const settings = definePluginSettings({
     }
 });
 
-export const getScope = (channelId: string): Scope =>
-    settings.store.channels[channelId] ?? settings.store.global;
+export const guildOf = (channelId: string): string | null => ChannelStore.getChannel(channelId)?.guild_id ?? null;
 
-export const hasOwnScope = (channelId: string) => channelId in settings.store.channels;
+export function scopeKind(channelId: string): ScopeKind {
+    if (channelId in settings.store.channels) return "channel";
+    const guildId = guildOf(channelId);
+    return guildId && guildId in settings.store.guilds ? "guild" : "global";
+}
+
+export function getScope(channelId: string): Scope {
+    const guildId = guildOf(channelId);
+    return settings.store.channels[channelId]
+        ?? (guildId ? settings.store.guilds[guildId] : undefined)
+        ?? settings.store.global;
+}
 
 // Las escrituras trabajan sobre copias planas y reasignan el objeto entero: así no se cuelan
 // proxies anidados en lo que se guarda y los hooks settings.use() se enteran del cambio.
 const copy = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 
-/** Modifica la configuración que aplica ahora mismo en el canal (la propia o la global) */
-export function updateScope(channelId: string, patch: Partial<Scope>) {
-    const channels = copy(settings.store.channels);
-    if (channelId in channels) settings.store.channels = { ...channels, [channelId]: { ...channels[channelId], ...patch } };
-    else settings.store.global = { ...copy(settings.store.global), ...patch };
+function setEntry(key: "channels" | "guilds", id: string, value: Scope | null) {
+    const { [id]: _, ...rest } = copy(settings.store[key]);
+    settings.store[key] = value ? { ...rest, [id]: value } : rest;
 }
 
-/** true: el canal pasa a tener su propia configuración (copia de la global). false: vuelve a la global */
-export function setOwnScope(channelId: string, own: boolean) {
-    const { [channelId]: current, ...rest } = copy(settings.store.channels);
-    settings.store.channels = own ? { ...rest, [channelId]: current ?? copy(settings.store.global) } : rest;
+/** Modifica la configuración que aplica ahora mismo en el canal (la del chat, la del servidor o la global) */
+export function updateScope(channelId: string, patch: Partial<Scope>) {
+    const next = { ...copy(getScope(channelId)), ...patch };
+    switch (scopeKind(channelId)) {
+        case "channel": return setEntry("channels", channelId, next);
+        case "guild": return setEntry("guilds", guildOf(channelId)!, next);
+        default: settings.store.global = next;
+    }
+}
+
+/** Cambia qué configuración usa el canal. La nueva parte de la que estaba aplicando, si no existía ya */
+export function setScopeKind(channelId: string, kind: ScopeKind) {
+    const current = copy(getScope(channelId));
+    const guildId = guildOf(channelId);
+
+    if (kind === "channel") return setEntry("channels", channelId, current);
+
+    setEntry("channels", channelId, null);
+    if (guildId) setEntry("guilds", guildId, kind === "guild" ? copy(settings.store.guilds[guildId] ?? current) : null);
 }

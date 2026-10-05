@@ -7,16 +7,22 @@
 import { ChatBarButton, ChatBarButtonFactory } from "@api/ChatButtons";
 import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
-import { IconComponent } from "@utils/types";
+import { IconComponent, PluginSettingComponentProps } from "@utils/types";
 import { Message } from "@vencord/discord-types";
-import { MessageStore, Popout, Tooltip, useMemo, useRef, useState } from "@webpack/common";
-import type { CSSProperties } from "react";
+import { Alerts, ContextMenuApi, Menu, MessageStore, Popout, ReactDOM, showToast, Tooltip, useEffect, useMemo, useRef, useState } from "@webpack/common";
+import type { CSSProperties, RefObject } from "react";
 
-import { formatClock, formatDuration, MAX_MS, MIN_MS, parseDuration, parsePresets } from "./duration";
-import { cancel, deleteNow, useNow, useTask, useTasks } from "./scheduler";
-import { getScope, hasOwnScope, setOwnScope, settings, updateScope } from "./settings";
+import { cancel, deleteNow, findMyLastMessages, getTask, schedule, scheduleMany, Task, useNow, useTask, useTasks } from "./scheduler";
+import { exitSelection, selectAllLoaded, startSelection, useSelection } from "./selection";
+import { getScope, guildOf, ScopeKind, scopeKind, setScopeKind, settings, updateScope } from "./settings";
+import { comboFromEvent, formatClock, formatDuration, MAX_MS, MIN_MS, parseDuration, parsePresets } from "./utils";
 
 const cl = classNameFactory("eliminao-");
+
+const SCOPE_LABEL: Record<ScopeKind, string> = { channel: "Este chat", guild: "Servidor", global: "Global" };
+const SCOPE_WHERE: Record<ScopeKind, string> = { channel: "en este chat", guild: "en este servidor", global: "en todos los chats" };
+
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 export const ClockIcon: IconComponent = ({ height = 20, width = 20, className }) => (
     <svg width={width} height={height} viewBox="0 0 24 24" className={className} aria-hidden="true">
@@ -32,7 +38,8 @@ export const ClockIcon: IconComponent = ({ height = 20, width = 20, className })
 
 export const EliminaoButton: ChatBarButtonFactory = ({ channel, isAnyChat }) => {
     // Suscripción para re-renderizar al cambiar la config
-    settings.use(["global", "channels"]);
+    settings.use(["global", "channels", "guilds"]);
+    const selection = useSelection();
     const [open, setOpen] = useState(false);
     const anchor = useRef<HTMLSpanElement>(null);
 
@@ -44,42 +51,46 @@ export const EliminaoButton: ChatBarButtonFactory = ({ channel, isAnyChat }) => 
         : "Eliminao: desactivado (clic derecho: activar)";
 
     return (
-        <Popout
-            position="top"
-            align="right"
-            animation={Popout.Animation.NONE}
-            shouldShow={open}
-            onRequestClose={() => setOpen(false)}
-            targetElementRef={anchor}
-            renderPopout={() => <Panel channelId={channel.id} />}
-        >
-            {() => (
-                <ChatBarButton
-                    tooltip={open ? "" : tooltip}
-                    onClick={() => setOpen(v => !v)}
-                    onContextMenu={e => {
-                        e.preventDefault();
-                        updateScope(channel.id, { enabled: !scope.enabled });
-                    }}
-                    buttonProps={{ "aria-haspopup": "dialog", "aria-expanded": open } as any}
-                >
-                    <span ref={anchor} className={cl("button", { active: scope.enabled, open })}>
-                        <ClockIcon />
-                        {scope.enabled && <span className={cl("badge")}>{formatDuration(scope.ms)}</span>}
-                        {scope.enabled && scope.once && <span className={cl("once-dot")} />}
-                    </span>
-                </ChatBarButton>
-            )}
-        </Popout>
+        <>
+            <Popout
+                position="top"
+                align="right"
+                animation={Popout.Animation.NONE}
+                shouldShow={open}
+                onRequestClose={() => setOpen(false)}
+                targetElementRef={anchor}
+                renderPopout={() => <Panel channelId={channel.id} onClose={() => setOpen(false)} />}
+            >
+                {() => (
+                    <ChatBarButton
+                        tooltip={open ? "" : tooltip}
+                        onClick={() => setOpen(v => !v)}
+                        onContextMenu={e => {
+                            e.preventDefault();
+                            updateScope(channel.id, { enabled: !scope.enabled });
+                        }}
+                        buttonProps={{ "aria-haspopup": "dialog", "aria-expanded": open } as any}
+                    >
+                        <span ref={anchor} className={cl("button", { active: scope.enabled, open })}>
+                            <ClockIcon />
+                            {scope.enabled && <span className={cl("badge")}>{formatDuration(scope.ms)}</span>}
+                            {scope.enabled && scope.once && <span className={cl("once-dot")} />}
+                        </span>
+                    </ChatBarButton>
+                )}
+            </Popout>
+            {selection?.channelId === channel.id && ReactDOM.createPortal(<SelectionBar channelId={channel.id} anchor={anchor} />, document.body)}
+        </>
     );
 };
 
 // ---- Panel ----
 
-function Panel({ channelId }: { channelId: string; }) {
-    const { presets } = settings.use(["global", "channels", "presets"]);
+function Panel({ channelId, onClose }: { channelId: string; onClose(): void; }) {
+    const { presets, shortcut } = settings.use(["global", "channels", "guilds", "presets", "shortcut"]);
     const scope = getScope(channelId);
-    const own = hasOwnScope(channelId);
+    const kind = scopeKind(channelId);
+    const kinds: ScopeKind[] = guildOf(channelId) ? ["channel", "guild", "global"] : ["channel", "global"];
     const presetList = useMemo(() => parsePresets(presets), [presets]);
 
     const [custom, setCustom] = useState("");
@@ -110,10 +121,17 @@ function Panel({ channelId }: { channelId: string; }) {
                 <Switch checked={scope.enabled} onChange={enabled => updateScope(channelId, { enabled })} />
             </header>
 
-            <div className={cl("segmented")} data-own={own} role="tablist">
+            <div
+                className={cl("segmented")}
+                role="tablist"
+                style={{ "--eliminao-n": kinds.length, "--eliminao-i": kinds.indexOf(kind) } as CSSProperties}
+            >
                 <span className={cl("segmented-thumb")} aria-hidden="true" />
-                <button role="tab" aria-selected={own} onClick={() => setOwnScope(channelId, true)}>Este chat</button>
-                <button role="tab" aria-selected={!own} onClick={() => setOwnScope(channelId, false)}>Global</button>
+                {kinds.map(k => (
+                    <button key={k} role="tab" aria-selected={k === kind} onClick={() => setScopeKind(channelId, k)}>
+                        {SCOPE_LABEL[k]}
+                    </button>
+                ))}
             </div>
 
             <div className={cl("presets")}>
@@ -142,7 +160,7 @@ function Panel({ channelId }: { channelId: string; }) {
             <p className={cl("hint")}>
                 {invalid
                     ? `Formato no válido. Entre ${formatDuration(MIN_MS)} y ${formatDuration(MAX_MS)}.`
-                    : `Actual: ${formatDuration(scope.ms)}${own ? " en este chat" : " en todos los chats"}`}
+                    : `Actual: ${formatDuration(scope.ms)} ${SCOPE_WHERE[kind]}`}
             </p>
 
             <label className={cl("row")}>
@@ -153,14 +171,65 @@ function Panel({ channelId }: { channelId: string; }) {
                 <Switch checked={scope.once} onChange={once => updateScope(channelId, { once })} />
             </label>
 
+            <Tools channelId={channelId} ms={scope.ms} onClose={onClose} />
+
             <PendingList channelId={channelId} />
 
-            {settings.store.prefix.trim() && (
-                <p className={cl("footer")}>
-                    Atajo: <code>{settings.store.prefix.trim()} 30s mensaje</code> · clic derecho en el reloj para activar o desactivar
-                </p>
-            )}
+            <p className={cl("footer")}>
+                Activar o desactivar: {shortcut && <><code>{shortcut}</code> o </>}clic derecho en el reloj
+                {settings.store.prefix.trim() && <><br />Un solo mensaje: <code>{settings.store.prefix.trim()} 30s hola</code></>}
+            </p>
         </div>
+    );
+}
+
+function Tools({ channelId, ms, onClose }: { channelId: string; ms: number; onClose(): void; }) {
+    const [count, setCount] = useState("10");
+    const [busy, setBusy] = useState(false);
+    const n = Math.min(500, Math.max(0, parseInt(count) || 0));
+
+    async function makeLastTemporary() {
+        setBusy(true);
+        try {
+            const ids = await findMyLastMessages(channelId, n);
+            scheduleMany(ids.map(id => ({ id, channelId })), ms);
+            if (ids.length) showToast(`${plural(ids.length, "mensaje")} se borrarán en ${formatDuration(ms)}`, "success");
+            else showToast("No he encontrado mensajes tuyos en este chat");
+        } catch {
+            showToast("No se pudieron cargar los mensajes", "failure");
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    return (
+        <section className={cl("tools")}>
+            <div className={cl("tool")}>
+                <span>Mis últimos</span>
+                <input
+                    type="number"
+                    min={1}
+                    max={500}
+                    value={count}
+                    aria-label="Cuántos mensajes"
+                    onChange={e => setCount(e.currentTarget.value)}
+                    onKeyDown={e => e.key === "Enter" && n && !busy && makeLastTemporary()}
+                />
+                <button onClick={makeLastTemporary} disabled={busy || !n}>
+                    {busy ? "Buscando…" : `Temporales · ${formatDuration(ms)}`}
+                </button>
+            </div>
+            <button
+                className={cl("tool-select")}
+                title="Elige mensajes tuyos para borrarlos o hacerlos temporales de golpe"
+                onClick={() => {
+                    startSelection(channelId);
+                    onClose();
+                }}
+            >
+                <CheckIcon /> Seleccionar mensajes…
+            </button>
+        </section>
     );
 }
 
@@ -199,7 +268,141 @@ function preview(channelId: string, id: string) {
     const msg = MessageStore.getMessage(channelId, id);
     if (!msg) return "Mensaje";
     if (msg.content) return msg.content;
-    return msg.attachments?.length ? `📎 ${msg.attachments.length} adjunto(s)` : "Mensaje";
+    return msg.attachments?.length ? `📎 ${plural(msg.attachments.length, "adjunto")}` : "Mensaje";
+}
+
+// ---- Barra flotante del modo selección ----
+
+function SelectionBar({ channelId, anchor }: { channelId: string; anchor: RefObject<HTMLSpanElement | null>; }) {
+    const selection = useSelection();
+    const { ms } = getScope(channelId);
+
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => e.key === "Escape" && exitSelection();
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, []);
+
+    if (!selection) return null;
+
+    // Encima del reloj, alineada a su derecha
+    const rect = anchor.current?.getBoundingClientRect();
+    const position = rect
+        ? { right: Math.max(16, innerWidth - rect.right - 8), bottom: innerHeight - rect.top + 18 }
+        : { right: 24, bottom: 96 };
+
+    const items = [...selection.ids].map(id => ({ id, channelId }));
+    const n = items.length;
+
+    function makeTemporary() {
+        scheduleMany(items, ms);
+        exitSelection();
+        showToast(`${plural(n, "mensaje")} se borrarán en ${formatDuration(ms)}`, "success");
+    }
+
+    function confirmDelete() {
+        Alerts.show({
+            title: `¿Borrar ${plural(n, "mensaje")}?`,
+            body: "Se borran ahora mismo y no se puede deshacer.",
+            confirmText: "Borrar",
+            cancelText: "Cancelar",
+            // Botón rojo de Discord para acciones destructivas (los tipos de Vencord aún no lo recogen)
+            confirmVariant: "critical-primary",
+            onConfirm() {
+                scheduleMany(items, 0);
+                exitSelection();
+            }
+        } as Parameters<typeof Alerts.show>[0]);
+    }
+
+    return (
+        <div className={cl("selbar")} style={position} role="toolbar" aria-label="Selección de mensajes">
+            <span className={cl("selbar-count")} aria-live="polite">
+                {n ? `${n} seleccionado${n === 1 ? "" : "s"}` : "Haz clic en tus mensajes"}
+            </span>
+            <button onClick={selectAllLoaded}>Todos</button>
+            <button disabled={!n} onClick={makeTemporary}>Temporales · {formatDuration(ms)}</button>
+            <button className={cl("selbar-danger")} disabled={!n} onClick={confirmDelete}>
+                <TrashIcon /> Borrar
+            </button>
+            <button className={cl("icon-btn")} aria-label="Salir del modo selección" title="Salir (Esc)" onClick={exitSelection}>
+                <CloseIcon />
+            </button>
+        </div>
+    );
+}
+
+// ---- Menús de temporizador (clic derecho en el mensaje y botón al pasar el ratón) ----
+
+const presetItems = (message: Message) => parsePresets(settings.store.presets).map(ms => (
+    <Menu.MenuItem key={ms} id={`eliminao-set-${ms}`} label={`En ${formatDuration(ms)}`} action={() => schedule(message.id, message.channel_id, ms)} />
+));
+
+const taskItems = (message: Message, task?: Task) => task ? [
+    <Menu.MenuItem key="cancel" id="eliminao-cancel" label="Cancelar borrado" action={() => cancel(message.id)} />,
+    <Menu.MenuItem key="now" id="eliminao-now" label="Borrar ya" color="danger" action={() => deleteNow(message.id)} />
+] : [];
+
+export function messageMenuGroup(message: Message) {
+    const task = getTask(message.id);
+    return (
+        <Menu.MenuGroup>
+            <Menu.MenuItem id="eliminao-set" label={task ? "Cambiar temporizador" : "Hacer temporal"}>
+                {presetItems(message)}
+            </Menu.MenuItem>
+            {taskItems(message, task)}
+        </Menu.MenuGroup>
+    );
+}
+
+export function openTimerMenu(event: React.MouseEvent, message: Message) {
+    ContextMenuApi.openContextMenu(event, () => {
+        const task = getTask(message.id);
+        return (
+            <Menu.Menu navId="eliminao-timer" onClose={ContextMenuApi.closeContextMenu} aria-label="Temporizador de Eliminao">
+                <Menu.MenuGroup label={task ? "Cambiar temporizador" : "Borrar en…"}>{presetItems(message)}</Menu.MenuGroup>
+                {task && <Menu.MenuGroup>{taskItems(message, task)}</Menu.MenuGroup>}
+            </Menu.Menu>
+        );
+    });
+}
+
+// ---- Ajuste del atajo de teclado: graba la combinación que pulses ----
+
+// Declaración de función (no const): settings.ts la usa al cargar y así está disponible aunque haya import circular
+export function ShortcutSetting({ setValue }: PluginSettingComponentProps) {
+    const [value, setLocal] = useState<string>(settings.store.shortcut);
+    const [recording, setRecording] = useState(false);
+
+    useEffect(() => {
+        if (!recording) return;
+        const onKey = (e: KeyboardEvent) => {
+            // En captura sobre window: llega antes que el atajo global y no lo dispara
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if (e.key === "Escape") return setRecording(false);
+
+            const combo = e.key === "Backspace" || e.key === "Delete" ? "" : comboFromEvent(e);
+            if (combo === null) return; // solo modificadores: sigue esperando la tecla
+            setLocal(combo);
+            setValue(combo);
+            setRecording(false);
+        };
+        window.addEventListener("keydown", onKey, true);
+        return () => window.removeEventListener("keydown", onKey, true);
+    }, [recording]);
+
+    return (
+        <div className={cl("shortcut")}>
+            <div>
+                <strong>Atajo para activar o desactivar</strong>
+                <small>Pulsa el botón y después la combinación. Retroceso: sin atajo · Esc: cancelar</small>
+            </div>
+            <button className={cl("shortcut-btn", { recording })} onClick={() => setRecording(r => !r)}>
+                {recording ? "Pulsa una combinación…" : value || "Sin atajo"}
+            </button>
+        </div>
+    );
 }
 
 // ---- Cuenta atrás al final del mensaje, en línea como "(editado)" ----
@@ -254,5 +457,11 @@ const CloseIcon = () => (
 const TrashIcon = () => (
     <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true">
         <path fill="currentColor" d="M14.25 1c.41 0 .75.34.75.75V3h5.25c.41 0 .75.34.75.75v.5c0 .41-.34.75-.75.75H3.75A.75.75 0 0 1 3 4.25v-.5c0-.41.34-.75.75-.75H9V1.75c0-.41.34-.75.75-.75h4.5ZM5.06 7a1 1 0 0 0-1 1.06l.76 12.13a3 3 0 0 0 3 2.81h8.36a3 3 0 0 0 3-2.81l.75-12.13a1 1 0 0 0-1-1.06H5.07Z" />
+    </svg>
+);
+
+const CheckIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor" d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm0 16H5V5h14v14Zm-9-2-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8Z" />
     </svg>
 );

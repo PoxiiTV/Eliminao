@@ -12,12 +12,16 @@
 
 - **Botón de reloj en la barra del chat.** Al pulsarlo se abre un panel con atajos de tiempo (10s, 30s, 1m, 5m, 15m, 1h, 8h, 1d), un campo para poner el tiempo que quieras (`45s`, `2h30m`, `5min`…) y un interruptor para activarlo. Si haces **clic derecho** en el reloj, se activa o desactiva sin abrir nada.
 - **Siempre sabes si está activo:** el reloj se colorea y muestra el tiempo (ej. `5m`).
-- **Por chat o global:** cada chat puede tener su propio tiempo o usar el global.
+- **Por chat, por servidor o global:** cada chat puede tener su propio tiempo, todo un servidor puede compartir uno, o se usa el global. Se aplica el más concreto.
+- **Atajo de teclado** para activarlo o desactivarlo (`Alt+T` por defecto, se cambia en los ajustes grabando la combinación que quieras).
 - **Solo el siguiente mensaje:** se desactiva solo después de enviar uno.
 - **Prefijo rápido:** `!t 30s hola` envía *hola* y lo borra a los 30 s. Con `!t off hola` ese mensaje no se borra aunque el modo esté activo.
 - **Cuenta atrás discreta** al final de cada mensaje temporal, pequeña y gris como "(editado)": un anillo que se va vaciando y se pone en rojo en los últimos 10 s. Al pasar el ratón te dice a qué hora se borra y, si haces clic, cancelas el borrado.
-- **Clic derecho en tus mensajes:** *Hacer temporal* (también en mensajes ya enviados), *Cambiar temporizador*, *Cancelar borrado* y *Borrar ya*.
+- **Clic derecho en tus mensajes** o **botón de reloj al pasar el ratón** por encima: *Hacer temporal* (también en mensajes ya enviados), *Cambiar temporizador*, *Cancelar borrado* y *Borrar ya*.
+- **Mis últimos N mensajes:** desde el panel, haz temporales de golpe tus últimos mensajes del chat (hasta 500).
+- **Selección múltiple:** activa el modo selección, haz clic en tus mensajes (o en *Todos*) y bórralos de golpe o hazlos temporales. Funciona en MD y en servidores, y antes de borrar pide confirmación.
 - **Lista de pendientes** del chat dentro del panel, con opción de cancelar o borrar al momento.
+- **Aguanta las actualizaciones de Discord:** si una actualización rompe la cuenta atrás en línea, pasa a mostrarse debajo del mensaje automáticamente.
 - **Persistente:** si cierras Discord, los borrados se guardan y, al volver a abrirlo, se borra lo que ya había caducado.
 - **Prudente con Discord:** borra los mensajes de uno en uno, respeta los límites de peticiones (429) y reintenta si falla la red.
 
@@ -44,7 +48,8 @@ Tus ajustes y temas de Vencord se conservan, porque se siguen guardando en `%APP
 
 ### Ajustes (Vencord → Plugins → Eliminao)
 
-- **Atajos:** lista separada por comas, por ejemplo `10s, 1m, 2h30m`.
+- **Atajo de teclado:** pulsa el botón y la combinación que quieras. Retroceso lo desactiva.
+- **Atajos de tiempo:** lista separada por comas, por ejemplo `10s, 1m, 2h30m`.
 - **Prefijo:** `!t` por defecto. Déjalo vacío para desactivarlo.
 - **Cuenta atrás:** mostrarla u ocultarla en los mensajes.
 - **Aviso al borrar:** muestra un toast cada vez que se elimina un mensaje.
@@ -66,12 +71,16 @@ Límites de tiempo: entre **3 segundos** y **30 días**.
 
 - **Clock button in the chat bar.** Click it to open a panel with quick times (10s, 30s, 1m, 5m, 15m, 1h, 8h, 1d), a custom time field (`45s`, `2h30m`, `5min`…) and an on/off switch. **Right-click** the clock to toggle it without opening anything.
 - **Always know when it's on:** the clock lights up and shows the current time (e.g. `5m`).
-- **Per chat or global:** each chat can have its own timer or use the global one.
+- **Per chat, per server or global:** each chat can have its own timer, a whole server can share one, or the global one is used. The most specific one wins.
+- **Keyboard shortcut** to toggle it (`Alt+T` by default; change it in settings by recording any combination).
 - **Next message only:** turns itself off after sending one message.
 - **Quick prefix:** `!t 30s hello` sends *hello* and deletes it after 30 s. `!t off hello` keeps that message even when the mode is on.
 - **Subtle countdown** at the end of every temporary message, small and grey like "(edited)": a ring that drains and turns red in the last 10 s. Hover it to see when it will be deleted, and click it to cancel.
-- **Right-click your messages:** *Make temporary* (works on already-sent messages too), *Change timer*, *Cancel deletion* and *Delete now*.
+- **Right-click your messages** or use the **clock button on hover**: *Make temporary* (works on already-sent messages too), *Change timer*, *Cancel deletion* and *Delete now*.
+- **My last N messages:** make your latest messages in the chat temporary in one go from the panel (up to 500).
+- **Multi-select:** enter selection mode, click your messages (or *All*) and delete them in bulk or make them temporary. Works in DMs and servers, and asks for confirmation before deleting.
 - **Pending list** for the current chat inside the panel, where you can cancel or delete right away.
+- **Survives Discord updates:** if an update breaks the inline countdown, it automatically moves below the message.
 - **Persistent:** if you close Discord, scheduled deletions are saved, and anything that expired in the meantime is deleted when you reopen it.
 - **Gentle with Discord:** deletes messages one by one, respects rate limits (429) and retries on network errors.
 
@@ -98,6 +107,7 @@ Your Vencord settings and themes are kept, since they're still stored in `%APPDA
 
 ### Settings (Vencord → Plugins → Eliminao)
 
+- **Keyboard shortcut:** click the button and press any combination. Backspace disables it.
 - **Presets:** comma-separated list, e.g. `10s, 1m, 2h30m`.
 - **Prefix:** `!t` by default. Leave it empty to disable it.
 - **Countdown:** show or hide it on messages.

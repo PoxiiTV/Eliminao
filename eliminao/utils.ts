@@ -74,3 +74,12 @@ export function matchPrefix(content: string, prefix: string, hasAttachments = fa
     if (ms === null || (!m[2] && !hasAttachments)) return null;
     return { ms, rest: m[2] };
 }
+
+const MODIFIER_KEYS = ["Control", "Alt", "Shift", "Meta", "AltGraph"];
+
+/** Evento de teclado → "Ctrl+Alt+T". null si solo se han pulsado modificadores */
+export function comboFromEvent(e: Pick<KeyboardEvent, "key" | "ctrlKey" | "altKey" | "shiftKey" | "metaKey">) {
+    if (MODIFIER_KEYS.includes(e.key)) return null;
+    const key = e.key === " " ? "Space" : e.key.length === 1 ? e.key.toUpperCase() : e.key;
+    return [e.ctrlKey && "Ctrl", e.altKey && "Alt", e.shiftKey && "Shift", e.metaKey && "Meta", key].filter(Boolean).join("+");
+}

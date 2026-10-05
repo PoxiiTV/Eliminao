@@ -49,11 +49,47 @@ export const getTask = (id: string) => tasks.get(id);
 export const useTasks = () => React.useSyncExternalStore(subscribe, () => tasks);
 export const useTask = (id: string) => React.useSyncExternalStore(subscribe, () => tasks.get(id));
 
-export function schedule(id: string, channelId: string, ms: number) {
+/** Tus mensajes normales y respuestas (el resto son de sistema). Vale para mensajes del store y de la API */
+export const isTimeable = (m: { author?: { id: string; }; type: number; deleted?: boolean; }) =>
+    m.author?.id === me() && (m.type === 0 || m.type === 19) && !m.deleted;
+
+/** ms = 0 → se borran ya, pasando por la cola */
+export function scheduleMany(items: { id: string; channelId: string; }[], ms: number) {
     const userId = me();
-    if (!userId) return;
+    if (!userId || !items.length) return;
     const now = Date.now();
-    commit(new Map(tasks).set(id, { id, channelId, userId, createdAt: now, expiresAt: now + ms }));
+    const next = new Map(tasks);
+    for (const { id, channelId } of items) next.set(id, { id, channelId, userId, createdAt: now, expiresAt: now + ms });
+    commit(next);
+}
+
+export const schedule = (id: string, channelId: string, ms: number) => scheduleMany([{ id, channelId }], ms);
+
+const MAX_PAGES = 20; // 2000 mensajes como mucho, para no machacar la API
+
+/** Busca hacia atrás en el historial tus últimos `n` mensajes del canal */
+export async function findMyLastMessages(channelId: string, n: number) {
+    const found: string[] = [];
+    let before: string | undefined;
+
+    for (let page = 0; page < MAX_PAGES && found.length < n; page++) {
+        let batch: any[];
+        try {
+            const res = await RestAPI.get({ url: Constants.Endpoints.MESSAGES(channelId), query: { limit: 100, ...(before && { before }) } });
+            batch = res.body;
+        } catch (e: any) {
+            if (e?.status !== 429) throw e;
+            await sleep((e.body?.retry_after ?? 1) * 1000);
+            page--;
+            continue;
+        }
+        if (!batch.length) break;
+
+        for (const m of batch) if (found.length < n && isTimeable(m)) found.push(m.id);
+        before = batch[batch.length - 1].id;
+        await sleep(GAP_MS);
+    }
+    return found;
 }
 
 export function cancel(...ids: string[]) {

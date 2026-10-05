@@ -12,7 +12,7 @@ if not exist "%VENCORD_DIR%\node_modules" (
 )
 
 echo [1/3] Tests...
-call "%VENCORD_DIR%\node_modules\.bin\tsx" tests\duration.test.ts || goto :error
+call "%VENCORD_DIR%\node_modules\.bin\tsx" tests\utils.test.ts || goto :error
 
 echo [2/3] Copiando el plugin a Vencord...
 robocopy eliminao "%VENCORD_DIR%\src\userplugins\eliminao" /MIR /NJH /NJS /NFL /NDL >nul

@@ -1,7 +1,7 @@
 // Se ejecuta en start.bat (tsx de Vencord/node_modules)
 import assert from "node:assert/strict";
 
-import { formatClock, formatDuration, matchPrefix, parseDuration, parsePresets } from "../eliminao/duration";
+import { comboFromEvent, formatClock, formatDuration, matchPrefix, parseDuration, parsePresets } from "../eliminao/utils";
 
 assert.equal(parseDuration("30s"), 30_000);
 assert.equal(parseDuration("1h30m"), 5_400_000);
@@ -37,4 +37,13 @@ assert.equal(matchPrefix("!tonto 30s", "!t"), null);
 assert.equal(matchPrefix("hola", "!t"), null);
 assert.equal(matchPrefix("!t 30s hola", ""), null);
 
-console.log("duration: OK");
+
+const key = (key: string, mods: Partial<Record<"ctrlKey" | "altKey" | "shiftKey" | "metaKey", boolean>> = {}) =>
+    ({ key, ctrlKey: false, altKey: false, shiftKey: false, metaKey: false, ...mods });
+assert.equal(comboFromEvent(key("t", { altKey: true })), "Alt+T");
+assert.equal(comboFromEvent(key("T", { ctrlKey: true, shiftKey: true })), "Ctrl+Shift+T");
+assert.equal(comboFromEvent(key(" ", { ctrlKey: true })), "Ctrl+Space");
+assert.equal(comboFromEvent(key("F8")), "F8");
+assert.equal(comboFromEvent(key("Alt", { altKey: true })), null, "solo modificador");
+
+console.log("utils: OK");

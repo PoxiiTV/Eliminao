@@ -2,7 +2,9 @@
 
 .eliminao-button,
 .eliminao-panel,
-.eliminao-inline {
+.eliminao-inline,
+.eliminao-selbar,
+.eliminao-shortcut {
     --eliminao-accent: var(--brand-500, #5865f2);
     --eliminao-danger: var(--status-danger, #f23f43);
     --eliminao-ease: cubic-bezier(0.23, 1, 0.32, 1);
@@ -119,7 +121,7 @@
 .eliminao-segmented {
     position: relative;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(var(--eliminao-n, 2), 1fr);
     padding: 3px;
     border-radius: 10px;
     background: var(--eliminao-fill);
@@ -128,16 +130,12 @@
 .eliminao-segmented-thumb {
     position: absolute;
     inset: 3px auto 3px 3px;
-    width: calc(50% - 3px);
+    width: calc((100% - 6px) / var(--eliminao-n, 2));
     border-radius: 8px;
     background: color-mix(in srgb, var(--eliminao-accent) 85%, transparent);
     box-shadow: 0 2px 8px color-mix(in srgb, var(--eliminao-accent) 35%, transparent);
-    transform: translateX(100%);
+    transform: translateX(calc(100% * var(--eliminao-i, 0)));
     transition: transform 220ms var(--eliminao-ease);
-}
-
-.eliminao-segmented[data-own="true"] .eliminao-segmented-thumb {
-    transform: translateX(0);
 }
 
 .eliminao-segmented button {
@@ -362,6 +360,189 @@
     background: var(--eliminao-fill);
     font-family: var(--font-code, monospace);
     font-size: 11px;
+}
+
+/* Herramientas */
+.eliminao-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--eliminao-line);
+}
+
+.eliminao-tool {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 13px;
+}
+
+.eliminao-tool input {
+    width: 52px;
+    padding: 6px 6px 6px 8px;
+    border: 1px solid var(--eliminao-line);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--background-base-lowest, #111214) 60%, transparent);
+    color: var(--text-default, #dbdee1);
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+}
+
+.eliminao-tool button {
+    flex: 1;
+    padding: 7px 8px;
+    border: 1px solid var(--eliminao-line);
+    border-radius: 8px;
+    background: var(--eliminao-fill);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.eliminao-tool button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.eliminao-tool-select {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border: 1px dashed color-mix(in srgb, var(--eliminao-accent) 55%, transparent);
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--eliminao-accent) 10%, transparent);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.eliminao-tool-select svg {
+    color: var(--eliminao-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .eliminao-tool button:hover:not(:disabled),
+    .eliminao-tool-select:hover {
+        background: color-mix(in srgb, var(--text-default, #dbdee1) 11%, transparent);
+    }
+}
+
+/* ---- Barra flotante del modo selección ---- */
+
+.eliminao-selbar {
+    position: fixed;
+    z-index: 1000;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 6px 6px 6px 14px;
+    border: 1px solid var(--eliminao-line);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--background-base-lower, #1e1f22) 82%, transparent);
+    backdrop-filter: blur(18px) saturate(1.5);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 40%), inset 0 1px 0 rgb(255 255 255 / 5%);
+    color: var(--text-default, #dbdee1);
+    font-size: 13px;
+    animation: eliminao-in 180ms var(--eliminao-ease);
+    transform-origin: bottom right;
+}
+
+.eliminao-selbar-count {
+    min-width: 128px;
+    margin-right: 4px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.eliminao-selbar button {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 6px 10px;
+    border: 1px solid var(--eliminao-line);
+    border-radius: 8px;
+    background: var(--eliminao-fill);
+    color: inherit;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: transform 140ms var(--eliminao-ease), background-color 150ms ease, opacity 150ms ease;
+}
+
+.eliminao-selbar button:active:not(:disabled) {
+    transform: scale(0.96);
+}
+
+.eliminao-selbar button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.eliminao-selbar .eliminao-selbar-danger {
+    border-color: transparent;
+    background: var(--eliminao-danger);
+    color: #fff;
+}
+
+.eliminao-selbar .eliminao-icon-btn {
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .eliminao-selbar button:hover:not(:disabled, .eliminao-selbar-danger) {
+        background: color-mix(in srgb, var(--text-default, #dbdee1) 11%, transparent);
+    }
+
+    .eliminao-selbar .eliminao-selbar-danger:hover:not(:disabled) {
+        background: color-mix(in srgb, var(--eliminao-danger) 85%, #000);
+    }
+}
+
+/* ---- Ajuste del atajo ---- */
+
+.eliminao-shortcut {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    color: var(--text-default, #dbdee1);
+}
+
+.eliminao-shortcut strong {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.eliminao-shortcut small {
+    color: var(--text-muted, #949ba4);
+    font-size: 13px;
+}
+
+.eliminao-shortcut-btn {
+    min-width: 150px;
+    padding: 8px 14px;
+    border: 1px solid var(--eliminao-line);
+    border-radius: 8px;
+    background: var(--eliminao-fill);
+    color: var(--text-strong, #fff);
+    font-family: var(--font-code, monospace);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.eliminao-shortcut-btn.eliminao-recording {
+    border-color: var(--eliminao-accent);
+    background: color-mix(in srgb, var(--eliminao-accent) 18%, transparent);
+    font-family: inherit;
 }
 
 /* ---- Cuenta atrás al final del mensaje (discreta, como "(editado)") ---- */
