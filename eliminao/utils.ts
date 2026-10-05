@@ -5,7 +5,7 @@
  */
 
 /** Versión publicada. publicar.bat la usa para el tag del release; súbela antes de publicar */
-export const VERSION = "1.0.0";
+export const VERSION = "1.0.1";
 
 /** "1.2.0" > "1.1.9" → true. Ignora una "v" delante */
 export function isNewer(candidate: string, current: string) {

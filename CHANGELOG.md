@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.1
+
+### 🇪🇸 Novedades
+
+- **Instalador más pulido:** botones sin bordes de foco, mensajes de error más claros (por ejemplo, si todavía no hay ninguna versión publicada) y compatible con lectores de pantalla
+- **Primera actualización automática:** si tienes la v1.0.0, Discord te avisará para reiniciar y quedarte con esta
+
+### 🇬🇧 What's new
+
+- **Polished installer:** no focus borders on buttons, clearer error messages (for example, when no release has been published yet) and screen reader support
+- **First automatic update:** if you have v1.0.0, Discord will prompt you to restart and switch to this one
+
 ## v1.0.0
 
 ### 🇪🇸 Novedades

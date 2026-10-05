@@ -4,7 +4,7 @@
 
 <br />
 
-![Versión](https://img.shields.io/badge/versión-1.0.0-4fd1ff?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-1.0.1-4fd1ff?style=flat-square)
 ![Discord](https://img.shields.io/badge/Discord-Vencord-a06bff?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/Windows-10%20%7C%2011-34e0a1?style=flat-square)
 ![Actualizaciones](https://img.shields.io/badge/actualizaciones-automáticas-ffb454?style=flat-square)
